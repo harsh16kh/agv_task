@@ -1,16 +1,21 @@
 import cv2
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import heapq
 
 #Helper functions and classes
 class Vertex:
-    def __init__(self,x_coord,y_coord):
-        self.x=x_coord
+    def _init_(self,x_coord,y_coord):
+        
+        self.x=x_coord #Keep track of coordinates
         self.y=y_coord
-        self.d=float('inf') #distance from source
-        self.parent_x=None
+        
+        self.parent_x=None #Reconstruct the entire path
         self.parent_y=None
+        
+        self.d=float('inf') #distance from source
+        
         self.processed=False
         self.index_in_queue=None
 
@@ -18,6 +23,7 @@ class Vertex:
 def get_neighbors(mat,r,c):
     shape=mat.shape
     neighbors=[]
+    
     #ensure neighbors are within image boundaries
     if r > 0 and not mat[r-1][c].processed:
          neighbors.append(mat[r-1][c])
@@ -63,6 +69,7 @@ def bubble_down(queue, index):
             queue = bubble_down(queue, small)
     return queue
 
+#Implement euclidean squared distance formula
 def get_distance(img,u,v):
     return 0.1 + (float(img[v][0])-float(img[u][0]))**2+(float(img[v][1])-float(img[u][1]))**2+(float(img[v][2])-float(img[u][2]))**2
 
@@ -76,32 +83,46 @@ def drawPath(img,path, thickness=2):
 
 def find_shortest_path(img,src,dst):
     pq=[] #min-heap priority queue
+    
     source_x=src[0]
     source_y=src[1]
+    
     dest_x=dst[0]
     dest_y=dst[1]
+    
     imagerows,imagecols=img.shape[0],img.shape[1]
     matrix = np.full((imagerows, imagecols), None) #access by matrix[row][col]
+    
+    #fill matrix with vertices
     for r in range(imagerows):
         for c in range(imagecols):
             matrix[r][c]=Vertex(c,r)
             matrix[r][c].index_in_queue=len(pq)
             pq.append(matrix[r][c])
+    
+    #set source distance value to 0
     matrix[source_y][source_x].d=0
+    
+    #maintain min-heap invariant (minimum d vertex at list index 0)
     pq=bubble_up(pq, matrix[source_y][source_x].index_in_queue)
+    
     while len(pq) > 0:
-        u=pq[0]
-        u.processed=True
+        u=pq[0] #smallest-value unprocessed node
+        
+        #remove node of interest from the queue
         pq[0]=pq[-1]
         pq[0].index_in_queue=0
         pq.pop()
         pq=bubble_down(pq,0)
+
+        u.processed=True
+
         neighbors = get_neighbors(matrix,u.y,u.x)
         for v in neighbors:
             dist=get_distance(img,(u.y,u.x),(v.y,v.x))
             if u.d + dist < v.d:
                 v.d = u.d+dist
-                v.parent_x=u.x
+                v.parent_x=u.x #keep track of the shortest path
                 v.parent_y=u.y
                 idx=v.index_in_queue
                 pq=bubble_down(pq,idx)
@@ -117,18 +138,21 @@ def find_shortest_path(img,src,dst):
     path.append((source_x,source_y))
     return path
 
-img = cv2.imread('Task_1_High_Simple.png') # read the image 
-cv2.circle(img,(938,480), 3, (255,0,0), -1) # add a circle at (5, 220)
-cv2.circle(img, (50,480), 3, (0,0,255), -1) # add a circle at (5,5)
-plt.figure(figsize=(7,7))
-plt.imshow(img)  
-plt.show()
+def main(path):
+    start_point = (50,480)
+    end_point = (938,480)
 
-img = cv2.imread('Task_1_High_Simple.png') # read image
-cv2.imwrite('Task_1_High_Simple-initial.png', img)
-p = find_shortest_path(img, (50,480), (938,480))
-drawPath(img,p)
-cv2.imwrite('Task_1_High_Simple-solution.png', img)
-plt.figure(figsize=(7,7))
-plt.imshow(img) # show the image on the screen 
-plt.show()
+    img = cv2.imread(path) # read image
+
+    shortest_path = find_shortest_path(img, start_point, end_point)
+    drawPath(img, shortest_path)
+    cv2.imwrite('Task_1_High-solution.png', img)
+
+    return 0
+
+if _name_ == '_main_':
+    base_path = 'test_images'
+    img_name = 'Task_1_High_Simple.png'
+
+    path = os.path.join(base_path, img_name)
+    main(path)
