@@ -6,7 +6,7 @@ import heapq
 
 #Helper functions and classes
 class Vertex:
-    def _init_(self,x_coord,y_coord):
+    def __init__(self,x_coord,y_coord):
         
         self.x=x_coord #Keep track of coordinates
         self.y=y_coord
@@ -90,7 +90,7 @@ def find_shortest_path(img,src,dst):
     dest_x=dst[0]
     dest_y=dst[1]
     
-    imagerows,imagecols=img.shape[0],img.shape[1]
+    imagerows,imagecols=img.shape[img.shape[0],img.shape[1]]
     matrix = np.full((imagerows, imagecols), None) #access by matrix[row][col]
     
     #fill matrix with vertices
@@ -139,20 +139,26 @@ def find_shortest_path(img,src,dst):
     return path
 
 def main(path):
-    start_point = (50,480)
-    end_point = (938,480)
+    start_point = (7,4)
+    end_point = (96,82)
 
     img = cv2.imread(path) # read image
 
     shortest_path = find_shortest_path(img, start_point, end_point)
     drawPath(img, shortest_path)
-    cv2.imwrite('Task_1_High-solution.png', img)
 
+    width = int(img.shape[1] * 10)
+    height = int(img.shape[0] * 10)
+    dim = (width, height)
+    resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+    
+    cv2.imwrite('Task_1_Low.png', resized)
+  
     return 0
 
-if _name_ == '_main_':
+if __name__ == '__main__':
     base_path = 'test_images'
-    img_name = 'Task_1_High_Simple.png'
+    img_name = 'Task_1_Low.png'
 
     path = os.path.join(base_path, img_name)
     main(path)
