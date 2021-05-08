@@ -43,7 +43,7 @@ def bubble_up(queue, index):
             queue[index], queue[p_index]=queue[p_index], queue[index]
             queue[index].index_in_queue=index
             queue[p_index].index_in_queue=p_index
-            quque = bubble_up(queue, p_index)
+            queue = bubble_up(queue, p_index)
     return queue
     
 def bubble_down(queue, index):
@@ -90,7 +90,7 @@ def find_shortest_path(img,src,dst):
     dest_x=dst[0]
     dest_y=dst[1]
     
-    imagerows,imagecols=img.shape[img.shape[0],img.shape[1]]
+    imagerows,imagecols=img.shape[0],img.shape[1]
     matrix = np.full((imagerows, imagecols), None) #access by matrix[row][col]
     
     #fill matrix with vertices
@@ -120,6 +120,7 @@ def find_shortest_path(img,src,dst):
         neighbors = get_neighbors(matrix,u.y,u.x)
         for v in neighbors:
             dist=get_distance(img,(u.y,u.x),(v.y,v.x))
+            matrix[v.y,v.x] = [0,0,255]
             if u.d + dist < v.d:
                 v.d = u.d+dist
                 v.parent_x=u.x #keep track of the shortest path
@@ -152,7 +153,7 @@ def main(path):
     dim = (width, height)
     resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
     
-    cv2.imwrite('Task_1_Low.png', resized)
+    cv2.imwrite('Task_1_High_Solution.png', resized)
   
     return 0
 
