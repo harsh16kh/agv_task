@@ -73,7 +73,10 @@ def bubble_down(queue, index):
 def get_distance(img,u,v):
     return 0.1 + (float(img[v][0])-float(img[u][0]))**2+(float(img[v][1])-float(img[u][1]))**2+(float(img[v][2])-float(img[u][2]))**2
 
-def drawPath(img,path, thickness=2):
+def get_distance_1(img, black_img, v):
+    return (float(img[v][0])-float(black_img[v][0]))**2+(float(img[v][1])-float(black_img[v][1]))**2+(float(img[v][2])-float(black_img[v][2]))**2
+
+def drawPath(img, path, thickness=2):
     '''path is a list of (x,y) tuples'''
     x0,y0=path[0]
     for vertex in path[1:]:
@@ -81,7 +84,10 @@ def drawPath(img,path, thickness=2):
         cv2.line(img,(x0,y0),(x1,y1),(255,0,0),thickness)
         x0,y0=vertex
 
-def find_shortest_path(img,src,dst):
+
+        
+
+def find_shortest_path(img,img2,src,dst):
     pq=[] #min-heap priority queue
     
     source_x=src[0]
@@ -89,9 +95,13 @@ def find_shortest_path(img,src,dst):
     
     dest_x=dst[0]
     dest_y=dst[1]
+
+    
     
     imagerows,imagecols=img.shape[0],img.shape[1]
     matrix = np.full((imagerows, imagecols), None) #access by matrix[row][col]
+
+    
     
     #fill matrix with vertices
     for r in range(imagerows):
@@ -118,40 +128,51 @@ def find_shortest_path(img,src,dst):
         u.processed=True
 
         neighbors = get_neighbors(matrix,u.y,u.x)
+        
         for v in neighbors:
+            
             dist=get_distance(img,(u.y,u.x),(v.y,v.x))
-            matrix[v.y,v.x] = [0,0,255]
+            
+            
             if u.d + dist < v.d:
+                if (img[v.y,v.x]==(0,0,0)).all():
+                    
+                    img2[v.y,v.x] = (0,0,255)
                 v.d = u.d+dist
                 v.parent_x=u.x #keep track of the shortest path
                 v.parent_y=u.y
                 idx=v.index_in_queue
-                pq=bubble_down(pq,idx)
+                #pq=bubble_down(pq,idx)
                 pq=bubble_up(pq,idx)
                           
     path=[]
+    c = 0
     iter_v=matrix[dest_y][dest_x]
     path.append((dest_x,dest_y))
     while(iter_v.y!=source_y or iter_v.x!=source_x):
         path.append((iter_v.x,iter_v.y))
         iter_v=matrix[iter_v.parent_y][iter_v.parent_x]
+        c = c + 1
 
     path.append((source_x,source_y))
-    return path
+    return path, c
 
 def main(path):
     start_point = (7,4)
     end_point = (96,82)
 
     img = cv2.imread(path) # read image
+    img2 = cv2.imread(path)
 
-    shortest_path = find_shortest_path(img, start_point, end_point)
-    drawPath(img, shortest_path)
+    shortest_path, cost = find_shortest_path(img, img2, start_point, end_point)
+    print(cost)
+    drawPath(img2, shortest_path)
+    
 
     width = int(img.shape[1] * 10)
     height = int(img.shape[0] * 10)
     dim = (width, height)
-    resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+    resized = cv2.resize(img2, dim, interpolation = cv2.INTER_AREA)
     
     cv2.imwrite('Task_1_High_Solution.png', resized)
   
@@ -162,4 +183,4 @@ if __name__ == '__main__':
     img_name = 'Task_1_Low.png'
 
     path = os.path.join(base_path, img_name)
-    main(path)
+    main(path) 
