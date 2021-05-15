@@ -80,7 +80,7 @@ def heuristic(img, v, dst):
     
     dest_x=dst[0]
     dest_y=dst[1]
-    return abs(dest_x - v_x) + abs(dest_y - v_y)
+    return ((dest_x - v_x)**2 + (dest_y - v_y)**2)**0.5
 
 def drawPath(img, path, thickness=2):
     '''path is a list of (x,y) tuples'''
@@ -172,7 +172,7 @@ def main(path):
     dim = (width, height)
     resized = cv2.resize(img2, dim, interpolation = cv2.INTER_AREA)
     
-    cv2.imwrite('Task_1_Low_astra_c_1_Solution.png', resized)
+    cv2.imwrite('Task_1_Low_astar_1_c_1_Solution.png', resized)
 
     end = time.time()
 

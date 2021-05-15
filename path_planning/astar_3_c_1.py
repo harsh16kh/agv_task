@@ -34,10 +34,7 @@ def get_neighbors(mat,r,c):
         neighbors.append(mat[r][c-1])
     if c < shape[1] - 1 and not mat[r][c+1].processed:
         neighbors.append(mat[r][c+1])
-    if r < shape[0] - 1 and c < shape[1] - 1 and not mat[r+1][c+1].processed:
-        neighbors.append(mat[r+1][c+1])
-    if r > 0 and c < shape[1] - 1 and not mat[r-1][c+1].processed:
-        neighbors.append(mat[r-1][c+1])
+    
     return neighbors
 
 def bubble_up(queue, index):
@@ -84,7 +81,7 @@ def heuristic(img, v, dst):
     
     dest_x=dst[0]
     dest_y=dst[1]
-    return ((dest_x - v_x)**2 + (dest_y - v_y)**2)**0.5
+    return max((dest_x - v_x),(dest_y - v_y))
 
 def drawPath(img, path, thickness=2):
     '''path is a list of (x,y) tuples'''
@@ -136,10 +133,10 @@ def find_shortest_path(img,img2,src,dst):
             dist=get_distance(img,(u.y,u.x),(v.y,v.x))
             h = heuristic(img, (v.y,v.x), dst)
             
-            if u.d + dist + 0.5*h < v.d:
+            if u.d + dist + h < v.d:
                 if (img[v.y,v.x]==(0,0,0)).all():
                     img2[v.y,v.x] = (0,0,255)
-                v.d = u.d+dist+0.5*h
+                v.d = u.d+dist+h
                 v.parent_x=u.x #keep track of the shortest path
                 v.parent_y=u.y
                 idx=v.index_in_queue 
@@ -176,7 +173,7 @@ def main(path):
     dim = (width, height)
     resized = cv2.resize(img2, dim, interpolation = cv2.INTER_AREA)
     
-    cv2.imwrite('Task_1_Low_astar_1_c_2_Solution.png', resized)
+    cv2.imwrite('Task_1_Low_astar_3_c_1_Solution.png', resized)
 
     end = time.time()
 
