@@ -3,6 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import heapq
+import time
 
 #Helper functions and classes
 class Vertex:
@@ -26,13 +27,17 @@ def get_neighbors(mat,r,c):
     
     #ensure neighbors are within image boundaries
     if r > 0 and not mat[r-1][c].processed:
-         neighbors.append(mat[r-1][c])
+        neighbors.append(mat[r-1][c])
     if r < shape[0] - 1 and not mat[r+1][c].processed:
-            neighbors.append(mat[r+1][c])
+        neighbors.append(mat[r+1][c])
     if c > 0 and not mat[r][c-1].processed:
         neighbors.append(mat[r][c-1])
     if c < shape[1] - 1 and not mat[r][c+1].processed:
-            neighbors.append(mat[r][c+1])
+        neighbors.append(mat[r][c+1])
+    if r < shape[0] - 1 and c < shape[1] - 1 and not mat[r+1][c+1].processed:
+        neighbors.append(mat[r+1][c+1])
+    if r > 0 and c < shape[1] - 1 and not mat[r-1][c+1].processed:
+        neighbors.append(mat[r-1][c+1])   
     return neighbors
 
 def bubble_up(queue, index):
@@ -73,9 +78,6 @@ def bubble_down(queue, index):
 def get_distance(img,u,v):
     return 0.1 + (float(img[v][0])-float(img[u][0]))**2+(float(img[v][1])-float(img[u][1]))**2+(float(img[v][2])-float(img[u][2]))**2
 
-def get_distance_1(img, black_img, v):
-    return (float(img[v][0])-float(black_img[v][0]))**2+(float(img[v][1])-float(black_img[v][1]))**2+(float(img[v][2])-float(black_img[v][2]))**2
-
 def drawPath(img, path, thickness=2):
     '''path is a list of (x,y) tuples'''
     x0,y0=path[0]
@@ -83,9 +85,6 @@ def drawPath(img, path, thickness=2):
         x1,y1=vertex
         cv2.line(img,(x0,y0),(x1,y1),(255,0,0),thickness)
         x0,y0=vertex
-
-
-        
 
 def find_shortest_path(img,img2,src,dst):
     pq=[] #min-heap priority queue
@@ -96,13 +95,9 @@ def find_shortest_path(img,img2,src,dst):
     dest_x=dst[0]
     dest_y=dst[1]
 
-    
-    
     imagerows,imagecols=img.shape[0],img.shape[1]
     matrix = np.full((imagerows, imagecols), None) #access by matrix[row][col]
 
-    
-    
     #fill matrix with vertices
     for r in range(imagerows):
         for c in range(imagecols):
@@ -130,14 +125,12 @@ def find_shortest_path(img,img2,src,dst):
         neighbors = get_neighbors(matrix,u.y,u.x)
         
         for v in neighbors:
-            
             dist=get_distance(img,(u.y,u.x),(v.y,v.x))
-            
             
             if u.d + dist < v.d:
                 if (img[v.y,v.x]==(0,0,0)).all():
-                    
                     img2[v.y,v.x] = (0,0,255)
+                
                 v.d = u.d+dist
                 v.parent_x=u.x #keep track of the shortest path
                 v.parent_y=u.y
@@ -158,6 +151,8 @@ def find_shortest_path(img,img2,src,dst):
     return path, c
 
 def main(path):
+    start = time.time()
+    
     start_point = (7,4)
     end_point = (96,82)
 
@@ -174,7 +169,11 @@ def main(path):
     dim = (width, height)
     resized = cv2.resize(img2, dim, interpolation = cv2.INTER_AREA)
     
-    cv2.imwrite('Task_1_High_Solution.png', resized)
+    cv2.imwrite('Task_1_Low_C_2_Solution.png', resized)
+
+    end = time.time()
+
+    print(f"Runtime of the program is {end - start}")
   
     return 0
 
