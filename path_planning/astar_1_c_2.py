@@ -37,7 +37,7 @@ def get_neighbors(mat,r,c):
     if r < shape[0] - 1 and c < shape[1] - 1 and not mat[r+1][c+1].processed:
         neighbors.append(mat[r+1][c+1])
     if r > 0 and c < shape[1] - 1 and not mat[r-1][c+1].processed:
-        neighbors.append(mat[r-1][c+1])   
+        neighbors.append(mat[r-1][c+1])
     return neighbors
 
 def bubble_up(queue, index):
@@ -77,6 +77,14 @@ def bubble_down(queue, index):
 #Implement euclidean squared distance formula
 def get_distance(img,u,v):
     return 0.1 + (float(img[v][0])-float(img[u][0]))**2+(float(img[v][1])-float(img[u][1]))**2+(float(img[v][2])-float(img[u][2]))**2
+
+def heuristic(img, v, dst):
+    v_x = v[0]
+    v_y = v[1]
+    
+    dest_x=dst[0]
+    dest_y=dst[1]
+    return abs(dest_x - v_x) + abs(dest_y - v_y)
 
 def drawPath(img, path, thickness=2):
     '''path is a list of (x,y) tuples'''
@@ -126,15 +134,15 @@ def find_shortest_path(img,img2,src,dst):
         
         for v in neighbors:
             dist=get_distance(img,(u.y,u.x),(v.y,v.x))
+            h = heuristic(img, (v.y,v.x), dst)
             
-            if u.d + dist < v.d:
+            if u.d + dist + 0.5*h < v.d:
                 if (img[v.y,v.x]==(0,0,0)).all():
                     img2[v.y,v.x] = (0,0,255)
-                
-                v.d = u.d+dist
+                v.d = u.d+dist+0.5*h
                 v.parent_x=u.x #keep track of the shortest path
                 v.parent_y=u.y
-                idx=v.index_in_queue
+                idx=v.index_in_queue 
                 #pq=bubble_down(pq,idx)
                 pq=bubble_up(pq,idx)
                           
@@ -163,13 +171,12 @@ def main(path):
     print(cost)
     drawPath(img2, shortest_path)
     
-
     width = int(img.shape[1] * 10)
     height = int(img.shape[0] * 10)
     dim = (width, height)
     resized = cv2.resize(img2, dim, interpolation = cv2.INTER_AREA)
     
-    cv2.imwrite('Task_1_Low_dijkstra_c_2_Solution.png', resized)
+    cv2.imwrite('Task_1_Low_astra_c_2_Solution.png', resized)
 
     end = time.time()
 

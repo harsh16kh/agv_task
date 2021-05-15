@@ -165,7 +165,7 @@ def main(path):
     dim = (width, height)
     resized = cv2.resize(img2, dim, interpolation = cv2.INTER_AREA)
     
-    cv2.imwrite('Task_1_Low_C_1_Solution.png', resized)
+    cv2.imwrite('Task_1_Low_dijkstra_c_1_Solution.png', resized)
 
     end = time.time()
 
